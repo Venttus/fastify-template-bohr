@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <style>
+    /* Estilos para o layout do dashboard */
+    body {
+      font-family: Arial, sans-serif;
+    }
+    
+    #dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 20px;
+      padding: 20px;
+    }
+    
+    .card {
+      background-color: #f3f3f3;
+      padding: 20px;
+    }
+    
+    .chart {
+      width: 100%;
+      height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dashboard</h1>
+  
+  <div id="dashboard">
+    <div class="card">
+      <h2>Gráfico 1</h2>
+      <canvas id="chart1" class="chart"></canvas>
+    </div>
+    
+    <div class="card">
+      <h2>Gráfico 2</h2>
+      <canvas id="chart2" class="chart"></canvas>
+    </div>
+    
+    <div class="card">
+      <h2>Gráfico 3</h2>
+      <canvas id="chart3" class="chart"></canvas>
+    </div>
+    
+    <div class="card">
+      <h2>Cartão 1</h2>
+      <p>Dados do cartão 1</p>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Código JavaScript para a criação dos gráficos utilizando a biblioteca Chart.js
+    
+    // Função para carregar o arquivo JSON
+    function loadJSON(callback) {
+      var xobj = new XMLHttpRequest();
+      xobj.overrideMimeType("application/json");
+      xobj.open('GET', 'RLT.json', true);
+      xobj.onreadystatechange = function() {
+        if (xobj.readyState === 4 && xobj.status === 200) {
+          callback(xobj.responseText);
+        }
+      };
+      xobj.send(null);
+    }
+    
+    // Função para criar o gráfico de barras
+    function createBarChart(chartData) {
+      const chart1 = new Chart(document.getElementById('chart1'), {
+        type: 'bar',
+        data: chartData,
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value, index, values) {
+                  return value + ' t';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // Função para criar o gráfico de linhas
+    function createLineChart(chartData) {
+      const chart2 = new Chart(document.getElementById('chart2'), {
+        type: 'line',
+        data: chartData,
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 10
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // Função para criar o gráfico de rosca
+    function createDoughnutChart(chartData) {
+      const chart3 = new Chart(document.getElementById('chart3'), {
+        type: 'doughnut',
+        data: chartData
+      });
+    }
+    
+    // Função para manipular os dados JSON e criar os gráficos
+    function handleJSON(jsonData) {
+      const data = JSON.parse(jsonData);
+      
+      // Dados para o gráfico de barras
+      const chart1Data = {
+        labels: [data.DATA],
+        datasets: [{
+          label: 'Peso (toneladas)',
+          data: [data.PESO],
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      };
+      
+      createBarChart(chart1Data);
+      
+      // Dados para o gráfico de linhas
+      const chart2Data = {
+        labels: [data.DATA],
+        datasets: [{
+          label: 'Filial',
+          data: [data.FILIAL],
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+          fill: false
+        }]
+      };
+      
+      createLineChart(chart2Data);
+      
+      // Dados para o gráfico de rosca
+      const chart3Data = {
+        labels: [data['MODELO VEICULAR']],
+        datasets: [{
+          label: 'Modelo Veicular',
+          data: [data.PALETES],
+          backgroundColor: [
+            '#ff6384',
+            '#36a2eb',
+            '#cc65fe',
+            '#ffce56',
+            '#4bc0c0',
+            '#ff9f40',
+            '#bfbfbf',
+            '#808080'
+          ],
+          hoverOffset: 4
+        }]
+      };
+      
+      createDoughnutChart(chart3Data);
+    }
+    
+    // Carrega o arquivo JSON e chama a função para manipular os dados
+    loadJSON(handleJSON);
+  </script>
+</body>
+</html>
